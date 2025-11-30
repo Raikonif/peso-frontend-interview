@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productsApi } from "../api/products";
-import { CreateProductDTO, ApiError } from "../types/product";
+import { CreateProductSerializer, ApiError } from "../types/product";
 import { useAppDispatch } from "../store/hooks";
 import {
   setProducts,
@@ -121,7 +121,7 @@ export function useCreateProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateProductDTO) => productsApi.create(data),
+    mutationFn: (data: CreateProductSerializer) => productsApi.create(data),
     onSuccess: (newProduct) => {
       // Add to Redux store
       dispatch(addProduct(newProduct));

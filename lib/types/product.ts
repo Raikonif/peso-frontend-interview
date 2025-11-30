@@ -13,7 +13,7 @@ export interface Product {
   };
 }
 
-export interface CreateProductDTO {
+export interface CreateProductSerializer {
   title: string;
   price: number;
   description: string;

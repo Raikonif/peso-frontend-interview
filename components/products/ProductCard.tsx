@@ -2,10 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
+
 import { Product } from "@/lib/types/product";
-import { Card } from "../ui/Card";
-import { Badge } from "../ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+
 import { usePrefetchProduct } from "@/lib/hooks/useRetry";
+import { colorCategory } from "@/lib/helpers/colorCategory";
+import { formatPrice } from "@/lib/helpers/formatPrice";
+import { formatCategory } from "@/lib/helpers/formatCategory";
 
 interface ProductCardProps {
   product: Product;
@@ -13,17 +18,6 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const prefetch = usePrefetchProduct();
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("es-ES", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
-
-  const formatCategory = (category: string) => {
-    return category.charAt(0).toUpperCase() + category.slice(1);
-  };
 
   return (
     <Link
@@ -46,9 +40,11 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Content */}
         <div className="flex-1 p-4 flex flex-col">
           {/* Category badge */}
-          <Badge variant="info" size="sm">
-            {formatCategory(product.category)}
-          </Badge>
+          <div className="w-full justify-end flex">
+            <Badge variant={colorCategory(product.category)} size="sm">
+              {formatCategory(product.category)}
+            </Badge>
+          </div>
 
           {/* Title */}
           <h3 className="mt-2 text-lg font-semibold text-slate-100 line-clamp-2">

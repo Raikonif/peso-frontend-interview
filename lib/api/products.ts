@@ -1,5 +1,5 @@
 import { apiClient, validateResponse } from "./client";
-import { Product, CreateProductDTO } from "../types/product";
+import { Product, CreateProductSerializer } from "../types/product";
 
 // Validators
 const isValidProduct = (product: unknown): product is Product => {
@@ -60,7 +60,7 @@ export const productsApi = {
    * Create a new product
    * Note: FakeStore API simulates creation, returns the product with a new ID
    */
-  create: async (product: CreateProductDTO): Promise<Product> => {
+  create: async (product: CreateProductSerializer): Promise<Product> => {
     const response = await apiClient.post<Product>("/products", product);
     return validateResponse(response);
   },
@@ -70,7 +70,7 @@ export const productsApi = {
    */
   update: async (
     id: number,
-    product: Partial<CreateProductDTO>
+    product: Partial<CreateProductSerializer>
   ): Promise<Product> => {
     const response = await apiClient.put<Product>(`/products/${id}`, product);
     return validateResponse(response);

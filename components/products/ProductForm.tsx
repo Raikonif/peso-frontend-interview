@@ -2,36 +2,18 @@
 
 import { useState } from "react";
 import { useForm } from "@/lib/hooks/useForm";
-import { CreateProductDTO, PRODUCT_CATEGORIES } from "@/lib/types/product";
+import {
+  CreateProductSerializer,
+  PRODUCT_CATEGORIES,
+} from "@/lib/types/product";
 import { useCreateProduct } from "@/lib/hooks/useProducts";
-import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
-import { Textarea } from "../ui/Textarea";
-import { Select } from "../ui/Select";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/Textarea";
+import { Select } from "@/components/ui/Select";
 import { z } from "zod";
-
-// Validation schema using Zod
-const productSchema = z.object({
-  title: z
-    .string()
-    .min(3, "El título debe tener al menos 3 caracteres")
-    .max(100, "El título no puede exceder 100 caracteres"),
-  price: z
-    .number()
-    .positive("El precio debe ser mayor a 0")
-    .max(99999, "El precio no puede exceder 99,999"),
-  description: z
-    .string()
-    .min(10, "La descripción debe tener al menos 10 caracteres")
-    .max(1000, "La descripción no puede exceder 1000 caracteres"),
-  category: z.enum(PRODUCT_CATEGORIES, {
-    message: "Selecciona una categoría válida",
-  }),
-  image: z
-    .string()
-    .url("Ingresa una URL válida para la imagen")
-    .min(1, "La imagen es requerida"),
-});
+import { productSchema } from "@/lib/schemas/product";
+import { mapZodErrors } from "@/lib/helpers/zodErrors";
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
@@ -39,6 +21,14 @@ interface ProductFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
 }
+
+const INITIAL_VALUES: ProductFormValues = {
+  title: "",
+  price: 0,
+  description: "",
+  category: "" as ProductFormValues["category"],
+  image: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
+};
 
 export function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
   const createProduct = useCreateProduct();
@@ -48,40 +38,18 @@ export function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
 
   const { values, handleChange, handleSubmit, isSubmitting, resetForm } =
     useForm<ProductFormValues>({
-      initialValues: {
-        title: "",
-        price: 0,
-        description: "",
-        category: "" as ProductFormValues["category"],
-        image: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
-      },
+      initialValues: INITIAL_VALUES,
       onSubmit: async (formValues: ProductFormValues) => {
-        // Validate form
         const result = productSchema.safeParse(formValues);
 
         if (!result.success) {
-          const fieldErrors: Partial<Record<keyof ProductFormValues, string>> =
-            {};
-          result.error.issues.forEach((issue) => {
-            const field = issue.path[0] as keyof ProductFormValues;
-            fieldErrors[field] = issue.message;
-          });
-          setErrors(fieldErrors);
+          setErrors(mapZodErrors<ProductFormValues>(result.error));
           return;
         }
 
         setErrors({});
 
-        // Submit to API
-        const productData: CreateProductDTO = {
-          title: formValues.title,
-          price: formValues.price,
-          description: formValues.description,
-          category: formValues.category,
-          image: formValues.image,
-        };
-
-        await createProduct.mutateAsync(productData);
+        await createProduct.mutateAsync(formValues as CreateProductSerializer);
         resetForm();
         onSuccess?.();
       },
@@ -95,7 +63,7 @@ export function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-3 p-2 overflow-hidden max-h-10/12"
+      className="space-y-3 overflow-hidden max-h-10/12"
     >
       <Input
         label="Título del producto"
