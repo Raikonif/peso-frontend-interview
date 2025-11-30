@@ -1,7 +1,30 @@
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
 import { Header } from "@/components/common/Header";
 import { ProductCatalog } from "@/components/products/ProductCatalog";
+import { serverApi } from "@/lib/api/server";
+import { productKeys } from "@/lib/queryKeys";
 
-export default function HomePage() {
+// Server Component - fetches data on the server
+export default async function HomePage() {
+  // Create a new QueryClient for each request (SSR best practice)
+  const queryClient = new QueryClient();
+
+  // Prefetch products on the server
+  await queryClient.prefetchQuery({
+    queryKey: productKeys.list(20),
+    queryFn: () => serverApi.getProducts(20),
+  });
+
+  // Prefetch categories for the filter
+  await queryClient.prefetchQuery({
+    queryKey: productKeys.categories(),
+    queryFn: () => serverApi.getCategories(),
+  });
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -18,8 +41,10 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* Client Component for interactive catalog */}
-        <ProductCatalog />
+        {/* Hydration boundary passes server-fetched data to client */}
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <ProductCatalog />
+        </HydrationBoundary>
       </main>
 
       {/* Footer - Server rendered, no JS needed */}

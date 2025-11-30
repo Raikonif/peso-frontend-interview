@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productsApi } from "../api/products";
 import {
@@ -20,17 +21,9 @@ import {
 } from "../store/productSlice";
 import { addNotification } from "../store/uiSlice";
 
-// Query keys for React Query
-export const productKeys = {
-  all: ["products"] as const,
-  lists: () => [...productKeys.all, "list"] as const,
-  list: (limit?: number) => [...productKeys.lists(), { limit }] as const,
-  details: () => [...productKeys.all, "detail"] as const,
-  detail: (id: number) => [...productKeys.details(), id] as const,
-  categories: () => [...productKeys.all, "categories"] as const,
-  byCategory: (category: string) =>
-    [...productKeys.all, "category", category] as const,
-};
+// Re-export query keys from shared file for backward compatibility
+export { productKeys } from "../queryKeys";
+import { productKeys } from "../queryKeys";
 
 // Retry configuration with exponential backoff
 const retryConfig = {
@@ -41,16 +34,18 @@ const retryConfig = {
 
 /**
  * Hook to fetch all products
+ * Syncs data to Redux store for demonstration purposes
+ * Note: With SSR hydration, queryFn doesn't run if data is cached,
+ * so we use useEffect to sync Redux when data changes
  */
 export function useProducts(limit?: number) {
   const dispatch = useAppDispatch();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: productKeys.list(limit),
     queryFn: async () => {
       dispatch(clearError());
       const products = await productsApi.getAll(limit);
-      dispatch(setProducts(products));
       return products;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -62,20 +57,29 @@ export function useProducts(limit?: number) {
       },
     },
   });
+
+  // Sync to Redux when data changes (works with both SSR hydration and client fetch)
+  useEffect(() => {
+    if (query.data) {
+      dispatch(setProducts(query.data));
+    }
+  }, [query.data, dispatch]);
+
+  return query;
 }
 
 /**
  * Hook to fetch a single product by ID
+ * Syncs data to Redux store for demonstration purposes
  */
 export function useProduct(id: number) {
   const dispatch = useAppDispatch();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: productKeys.detail(id),
     queryFn: async () => {
       dispatch(clearError());
       const product = await productsApi.getById(id);
-      dispatch(setSelectedProduct(product));
       return product;
     },
     enabled: !!id && id > 0,
@@ -87,6 +91,15 @@ export function useProduct(id: number) {
       },
     },
   });
+
+  // Sync to Redux when data changes
+  useEffect(() => {
+    if (query.data) {
+      dispatch(setSelectedProduct(query.data));
+    }
+  }, [query.data, dispatch]);
+
+  return query;
 }
 
 /**
