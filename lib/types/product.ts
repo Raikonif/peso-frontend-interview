@@ -21,6 +21,11 @@ export interface CreateProductSerializer {
   image: string;
 }
 
+export interface UpdateProductSerializer {
+  id: number;
+  data: Partial<CreateProductSerializer>;
+}
+
 export interface ApiError {
   message: string;
   code: string;

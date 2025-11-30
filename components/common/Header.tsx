@@ -2,16 +2,20 @@
 
 import Link from "next/link";
 import { Button } from "../ui/Button";
+import { useAppDispatch } from "@/lib/store/hooks";
+import { setCreateModalOpen } from "@/lib/store/uiSlice";
 
 interface HeaderProps {
-  onCreateClick?: () => void;
   showCreateButton?: boolean;
 }
 
-export function Header({
-  onCreateClick,
-  showCreateButton = true,
-}: HeaderProps) {
+export function Header({ showCreateButton = true }: HeaderProps) {
+  const dispatch = useAppDispatch();
+
+  const handleCreateClick = () => {
+    dispatch(setCreateModalOpen(true));
+  };
+
   return (
     <header className="bg-[#1a1a24] border-b border-[#2a2a3a] sticky top-0 z-40 backdrop-blur-xl bg-opacity-90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,8 +42,8 @@ export function Header({
           </Link>
 
           {/* Create button */}
-          {showCreateButton && onCreateClick && (
-            <Button variant="primary" onClick={onCreateClick}>
+          {showCreateButton && (
+            <Button variant="primary" onClick={handleCreateClick}>
               <svg
                 className="w-5 h-5 mr-2"
                 fill="none"

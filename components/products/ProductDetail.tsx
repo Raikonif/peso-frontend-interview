@@ -1,10 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Product } from "@/lib/types/product";
+import { useDeleteProduct } from "@/lib/hooks/useProducts";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
+import { ConfirmModal } from "../ui/ConfirmModal";
+import { ProductFormModal } from "./ProductFormModal";
 import { ProductDetailSkeleton } from "../ui/Skeleton";
 import { ErrorMessage } from "../common/ErrorMessage";
 import { EmptyState } from "../common/EmptyState";
@@ -25,6 +30,19 @@ export function ProductDetail({
   onRetry,
   isRetrying,
 }: ProductDetailProps) {
+  const router = useRouter();
+  const deleteProduct = useDeleteProduct();
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleDelete = async () => {
+    if (!product) return;
+    await deleteProduct.mutateAsync(product.id);
+    setIsDeleteModalOpen(false);
+    router.push("/");
+  };
+
   // Loading state
   if (isLoading) {
     return <ProductDetailSkeleton />;
@@ -84,167 +102,135 @@ export function ProductDetail({
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Breadcrumb */}
-      <nav className="mb-6">
-        <ol className="flex items-center gap-2 text-sm text-slate-400">
-          <li>
-            <Link href="/" className="hover:text-indigo-400 transition-colors">
-              Inicio
-            </Link>
-          </li>
-          <li>
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clipRule="evenodd"
+    <>
+      <div className="max-w-6xl mx-auto">
+        {/* Breadcrumb */}
+        <nav className="mb-6">
+          <ol className="flex items-center gap-2 text-sm text-slate-400">
+            <li>
+              <Link
+                href="/"
+                className="hover:text-indigo-400 transition-colors"
+              >
+                Inicio
+              </Link>
+            </li>
+            <li>
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </li>
+            <li>
+              <span className="text-slate-100 font-medium line-clamp-1">
+                {product.title}
+              </span>
+            </li>
+          </ol>
+        </nav>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          {/* Image section */}
+          <div className="bg-[#1a1a24] border border-[#2a2a3a] rounded-xl shadow-xl p-8">
+            <div className="relative w-full h-96 md:h-[500px]">
+              <Image
+                src={product.image}
+                alt={product.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-contain"
+                priority
               />
-            </svg>
-          </li>
-          <li>
-            <span className="text-slate-100 font-medium line-clamp-1">
-              {product.title}
-            </span>
-          </li>
-        </ol>
-      </nav>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-        {/* Image section */}
-        <div className="bg-[#1a1a24] border border-[#2a2a3a] rounded-xl shadow-xl p-8">
-          <div className="relative w-full h-96 md:h-[500px]">
-            <Image
-              src={product.image}
-              alt={product.title}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-contain"
-              priority
-            />
-          </div>
-        </div>
-
-        {/* Info section */}
-        <div className="flex flex-col">
-          {/* Category */}
-          <Badge variant="info" size="md">
-            {formatCategory(product.category)}
-          </Badge>
-
-          {/* Title */}
-          <h1 className="mt-4 text-3xl md:text-4xl font-bold text-slate-100">
-            {product.title}
-          </h1>
-
-          {/* Price */}
-          <p className="mt-4 text-4xl font-bold gradient-text">
-            {formatPrice(product.price)}
-          </p>
-
-          {/* Rating */}
-          <div className="mt-4 flex items-center gap-2">
-            <div className="flex items-center">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <svg
-                  key={star}
-                  className={`w-5 h-5 ${
-                    star <= Math.round(product.rating.rate)
-                      ? "text-amber-400"
-                      : "text-slate-600"
-                  } fill-current`}
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                </svg>
-              ))}
             </div>
-            <span className="text-slate-400">
-              {product.rating.rate.toFixed(1)} ({product.rating.count} reseñas)
-            </span>
           </div>
 
-          {/* Description */}
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold text-slate-100">
-              Descripción
-            </h2>
-            <p className="mt-2 text-slate-400 leading-relaxed">
-              {product.description}
+          {/* Info section */}
+          <div className="flex flex-col">
+            {/* Category */}
+            <Badge variant="info" size="md">
+              {formatCategory(product.category)}
+            </Badge>
+
+            {/* Title */}
+            <h1 className="mt-4 text-3xl md:text-4xl font-bold text-slate-100">
+              {product.title}
+            </h1>
+
+            {/* Price */}
+            <p className="mt-4 text-4xl font-bold gradient-text">
+              {formatPrice(product.price)}
             </p>
-          </div>
 
-          {/* Product details */}
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold text-slate-100">
-              Detalles del producto
-            </h2>
-            <dl className="mt-2 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <dt className="text-slate-500">ID del producto</dt>
-                <dd className="font-medium text-slate-200">#{product.id}</dd>
+            {/* Rating */}
+            <div className="mt-4 flex items-center gap-2">
+              <div className="flex items-center">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <svg
+                    key={star}
+                    className={`w-5 h-5 ${
+                      star <= Math.round(product.rating.rate)
+                        ? "text-amber-400"
+                        : "text-slate-600"
+                    } fill-current`}
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                  </svg>
+                ))}
               </div>
-              <div>
-                <dt className="text-slate-500">Categoría</dt>
-                <dd className="font-medium text-slate-200">
-                  {formatCategory(product.category)}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-slate-500">Valoración promedio</dt>
-                <dd className="font-medium text-slate-200">
-                  {product.rating.rate}/5
-                </dd>
-              </div>
-              <div>
-                <dt className="text-slate-500">Total de reseñas</dt>
-                <dd className="font-medium text-slate-200">
-                  {product.rating.count}
-                </dd>
-              </div>
-            </dl>
-          </div>
+              <span className="text-slate-400">
+                {product.rating.rate.toFixed(1)} ({product.rating.count}{" "}
+                reseñas)
+              </span>
+            </div>
 
-          {/* Actions */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
-            <Button variant="primary" size="lg" className="flex-1">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              Agregar al carrito
-            </Button>
-            <Button variant="secondary" size="lg">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-              Favoritos
-            </Button>
-          </div>
+            {/* Description */}
+            <div className="mt-8">
+              <h2 className="text-lg font-semibold text-slate-100">
+                Descripción
+              </h2>
+              <p className="mt-2 text-slate-400 leading-relaxed">
+                {product.description}
+              </p>
+            </div>
 
-          {/* Back button */}
-          <div className="mt-6">
-            <Link href="/">
-              <Button variant="ghost">
+            {/* Product details */}
+            <div className="mt-8">
+              <h2 className="text-lg font-semibold text-slate-100">
+                Detalles del producto
+              </h2>
+              <dl className="mt-2 grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <dt className="text-slate-500">ID del producto</dt>
+                  <dd className="font-medium text-slate-200">#{product.id}</dd>
+                </div>
+                <div>
+                  <dt className="text-slate-500">Categoría</dt>
+                  <dd className="font-medium text-slate-200">
+                    {formatCategory(product.category)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-slate-500">Valoración promedio</dt>
+                  <dd className="font-medium text-slate-200">
+                    {product.rating.rate}/5
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-slate-500">Total de reseñas</dt>
+                  <dd className="font-medium text-slate-200">
+                    {product.rating.count}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Button variant="primary" size="lg" className="flex-1">
                 <svg
                   className="w-5 h-5 mr-2"
                   fill="none"
@@ -255,15 +241,118 @@ export function ProductDetail({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                   />
                 </svg>
-                Volver al catálogo
+                Agregar al carrito
               </Button>
-            </Link>
+              <Button variant="secondary" size="lg">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+                Favoritos
+              </Button>
+            </div>
+
+            {/* Edit/Delete Actions */}
+            <div className="mt-4 flex gap-3">
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => setIsEditModalOpen(true)}
+                className="flex-1"
+              >
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                Editar
+              </Button>
+              <Button
+                variant="danger"
+                size="md"
+                onClick={() => setIsDeleteModalOpen(true)}
+              >
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                Eliminar
+              </Button>
+            </div>
+
+            {/* Back button */}
+            <div className="mt-6">
+              <Link href="/">
+                <Button variant="ghost">
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                    />
+                  </svg>
+                  Volver al catálogo
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Edit Modal */}
+      <ProductFormModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        product={product}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Eliminar producto"
+        message={`¿Estás seguro de que deseas eliminar "${product.title}"? Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        variant="danger"
+        isLoading={deleteProduct.isPending}
+      />
+    </>
   );
 }

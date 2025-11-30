@@ -1,9 +1,11 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import axiosRetry, { isNetworkOrIdempotentRequestError } from "axios-retry";
 import { ApiError } from "../types/product";
 
 // Base API configuration
 const BASE_URL = process.env.DATABASE_URL || "https://fakestoreapi.com";
 const TIMEOUT = 10000; // 10 seconds
+const MAX_RETRIES = 3;
 
 // Create axios instance with default config
 export const apiClient: AxiosInstance = axios.create({
@@ -11,6 +13,37 @@ export const apiClient: AxiosInstance = axios.create({
   timeout: TIMEOUT,
   headers: {
     "Content-Type": "application/json",
+  },
+});
+
+// Configure axios-retry for automatic retries
+axiosRetry(apiClient, {
+  retries: MAX_RETRIES,
+  retryDelay: (retryCount) => {
+    // Exponential backoff: 1s, 2s, 4s
+    return Math.min(1000 * Math.pow(2, retryCount - 1), 8000);
+  },
+  retryCondition: (error: AxiosError) => {
+    // Retry on network errors or 5xx server errors
+    if (isNetworkOrIdempotentRequestError(error)) {
+      return true;
+    }
+
+    const status = error.response?.status;
+    if (!status) return true; // Network error
+
+    // Retry on server errors (5xx) and rate limiting (429)
+    return status >= 500 || status === 429;
+  },
+  onRetry: (retryCount, error, requestConfig) => {
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `[API Retry] Attempt ${retryCount}/${MAX_RETRIES} for ${requestConfig.method?.toUpperCase()} ${
+          requestConfig.url
+        }`
+      );
+      console.log(`[API Retry] Error: ${error.message}`);
+    }
   },
 });
 

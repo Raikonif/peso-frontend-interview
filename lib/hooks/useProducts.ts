@@ -2,11 +2,18 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productsApi } from "../api/products";
-import { CreateProductSerializer, ApiError } from "../types/product";
+import {
+  Product,
+  CreateProductSerializer,
+  UpdateProductSerializer,
+  ApiError,
+} from "../types/product";
 import { useAppDispatch } from "../store/hooks";
 import {
   setProducts,
   addProduct,
+  updateProduct,
+  removeProduct,
   setSelectedProduct,
   setError,
   clearError,
@@ -115,6 +122,7 @@ export function useCategories() {
 
 /**
  * Hook to create a new product
+ * Uses optimistic update since FakeStoreAPI doesn't persist data
  */
 export function useCreateProduct() {
   const dispatch = useAppDispatch();
@@ -126,8 +134,14 @@ export function useCreateProduct() {
       // Add to Redux store
       dispatch(addProduct(newProduct));
 
-      // Invalidate and refetch products list
-      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      // Optimistically update React Query cache (since API doesn't persist)
+      queryClient.setQueriesData<Product[]>(
+        { queryKey: productKeys.lists() },
+        (oldData) => {
+          if (!oldData) return [newProduct];
+          return [newProduct, ...oldData];
+        }
+      );
 
       // Show success notification
       dispatch(
@@ -154,6 +168,7 @@ export function useCreateProduct() {
 
 /**
  * Hook to delete a product
+ * Uses optimistic update since FakeStoreAPI doesn't persist data
  */
 export function useDeleteProduct() {
   const dispatch = useAppDispatch();
@@ -161,8 +176,19 @@ export function useDeleteProduct() {
 
   return useMutation({
     mutationFn: (id: number) => productsApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+    onSuccess: (_, deletedId) => {
+      // Remove from Redux store for immediate UI update
+      dispatch(removeProduct(deletedId));
+
+      // Optimistically update React Query cache (since API doesn't persist)
+      queryClient.setQueriesData<Product[]>(
+        { queryKey: productKeys.lists() },
+        (oldData) => {
+          if (!oldData) return [];
+          return oldData.filter((product) => product.id !== deletedId);
+        }
+      );
+
       dispatch(
         addNotification({
           type: "success",
@@ -175,7 +201,59 @@ export function useDeleteProduct() {
       dispatch(
         addNotification({
           type: "error",
-          message: error.message,
+          message: error.message || "Error al eliminar el producto",
+          duration: 8000,
+        })
+      );
+    },
+  });
+}
+
+/**
+ * Hook to update a product
+ * Uses optimistic update since FakeStoreAPI doesn't persist data
+ */
+export function useUpdateProduct() {
+  const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: UpdateProductSerializer) =>
+      productsApi.update(id, data),
+    onSuccess: (updatedProduct, { id }) => {
+      // Update in Redux store for immediate UI update
+      dispatch(updateProduct(updatedProduct));
+
+      // Optimistically update React Query cache (since API doesn't persist)
+      queryClient.setQueriesData<Product[]>(
+        { queryKey: productKeys.lists() },
+        (oldData) => {
+          if (!oldData) return [];
+          return oldData.map((product) =>
+            product.id === id ? { ...product, ...updatedProduct } : product
+          );
+        }
+      );
+
+      // Also update detail cache
+      queryClient.setQueryData<Product>(productKeys.detail(id), (oldData) =>
+        oldData ? { ...oldData, ...updatedProduct } : updatedProduct
+      );
+
+      dispatch(
+        addNotification({
+          type: "success",
+          message: `Producto "${updatedProduct.title}" actualizado exitosamente`,
+          duration: 5000,
+        })
+      );
+    },
+    onError: (error: ApiError) => {
+      dispatch(setError(error));
+      dispatch(
+        addNotification({
+          type: "error",
+          message: error.message || "Error al actualizar el producto",
           duration: 8000,
         })
       );
