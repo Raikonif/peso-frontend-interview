@@ -93,7 +93,10 @@ export function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
   }));
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-3 p-2 overflow-hidden max-h-10/12"
+    >
       <Input
         label="Título del producto"
         name="title"
@@ -101,32 +104,35 @@ export function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
         onChange={handleChange}
         error={errors.title}
         placeholder="Ej: Camiseta de algodón premium"
+        className="text-sm placeholder:text-sm"
         required
       />
-
-      <Input
-        label="Precio (USD)"
-        name="price"
-        type="number"
-        step="0.01"
-        min="0"
-        value={values.price || ""}
-        onChange={handleChange}
-        error={errors.price}
-        placeholder="Ej: 29.99"
-        required
-      />
-
-      <Select
-        label="Categoría"
-        name="category"
-        value={values.category}
-        onChange={handleChange}
-        error={errors.category}
-        options={categoryOptions}
-        placeholder="Selecciona una categoría"
-        required
-      />
+      <div className="flex space-x-2">
+        <Input
+          label="Precio (USD)"
+          name="price"
+          type="number"
+          step="0.01"
+          min="0"
+          value={values.price || ""}
+          onChange={handleChange}
+          error={errors.price}
+          placeholder="Ej: 29.99"
+          className="text-sm placeholder:text-sm"
+          required
+        />
+        <Select
+          label="Categoría"
+          name="category"
+          value={values.category}
+          onChange={handleChange}
+          error={errors.category}
+          options={categoryOptions}
+          placeholder="Selecciona una categoría"
+          className="text-sm placeholder:text-sm"
+          required
+        />
+      </div>
 
       <Textarea
         label="Descripción"
@@ -135,6 +141,7 @@ export function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
         onChange={handleChange}
         error={errors.description}
         placeholder="Describe el producto en detalle..."
+        className="text-sm placeholder:text-sm"
         required
       />
 
@@ -146,7 +153,7 @@ export function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
         onChange={handleChange}
         error={errors.image}
         placeholder="https://ejemplo.com/imagen.jpg"
-        helperText="Ingresa la URL de una imagen del producto"
+        className="text-sm placeholder:text-sm"
         required
       />
 
@@ -183,6 +190,7 @@ export function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
       <div className="flex gap-4 pt-4">
         <Button
           type="submit"
+          size="sm"
           variant="primary"
           isLoading={isSubmitting || createProduct.isPending}
           className="flex-1"
@@ -190,7 +198,12 @@ export function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
           Crear producto
         </Button>
         {onCancel && (
-          <Button type="button" variant="secondary" onClick={onCancel}>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={onCancel}
+          >
             Cancelar
           </Button>
         )}
