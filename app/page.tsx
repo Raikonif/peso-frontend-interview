@@ -68,10 +68,10 @@ export default function HomePage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page title */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-slate-100">
             Catálogo de Productos
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-slate-400">
             Explora nuestra colección de productos de alta calidad
           </p>
         </div>
@@ -99,13 +99,13 @@ export default function HomePage() {
         {/* Results info */}
         {!isLoading && !error && (
           <div className="mb-6 flex items-center justify-between">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-400">
               {filteredProducts.length}{" "}
               {filteredProducts.length === 1 ? "producto" : "productos"}{" "}
               encontrados
             </p>
             {isFetching && !isLoading && (
-              <span className="text-sm text-blue-600 flex items-center gap-2">
+              <span className="text-sm text-indigo-400 flex items-center gap-2">
                 <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
@@ -153,9 +153,9 @@ export default function HomePage() {
       </Modal>
 
       {/* Footer */}
-      <footer className="bg-white border-t mt-16">
+      <footer className="bg-[#1a1a24] border-t border-[#2a2a3a] mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-gray-600 text-sm">
+          <div className="text-center text-slate-400 text-sm">
             <p>
               Demo de aplicación frontend con manejo robusto de errores y
               resiliencia
@@ -166,7 +166,7 @@ export default function HomePage() {
                 href="https://fakestoreapi.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
+                className="text-indigo-400 hover:underline"
               >
                 FakeStore API
               </a>{" "}

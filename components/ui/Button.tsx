@@ -24,7 +24,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 focus:ring-indigo-500 active:from-indigo-700 active:to-purple-800 shadow-lg shadow-indigo-500/25",
+        "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 active:bg-indigo-800 shadow-lg shadow-indigo-500/25",
       secondary:
         "bg-[#2a2a3a] text-slate-200 hover:bg-[#3a3a4a] focus:ring-slate-500 active:bg-[#4a4a5a] border border-[#3a3a4a]",
       danger:

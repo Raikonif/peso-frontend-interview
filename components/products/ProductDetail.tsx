@@ -166,7 +166,9 @@ export function ProductDetail({
 
           {/* Description */}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-slate-100">Descripción</h2>
+            <h2 className="text-lg font-semibold text-slate-100">
+              Descripción
+            </h2>
             <p className="mt-2 text-slate-400 leading-relaxed">
               {product.description}
             </p>
