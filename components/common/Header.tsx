@@ -13,7 +13,7 @@ export function Header({
   showCreateButton = true,
 }: HeaderProps) {
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-40">
+    <header className="bg-[#1a1a24] border-b border-[#2a2a3a] sticky top-0 z-40 backdrop-blur-xl bg-opacity-90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -22,7 +22,7 @@ export function Header({
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <svg
-              className="w-8 h-8 text-blue-600"
+              className="w-8 h-8 text-indigo-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -34,7 +34,7 @@ export function Header({
                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
               />
             </svg>
-            <span className="text-xl font-bold text-gray-900">FakeStore</span>
+            <span className="text-xl font-bold gradient-text">FakeStore</span>
           </Link>
 
           {/* Create button */}

@@ -48,17 +48,17 @@ export function Modal({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose();
       }}
     >
       <div
-        className={`bg-white rounded-xl shadow-2xl w-full ${sizes[size]} transform transition-all animate-in fade-in zoom-in-95 duration-200`}
+        className={`bg-[#1a1a24] border border-[#2a2a3a] rounded-xl shadow-2xl shadow-black/50 w-full ${sizes[size]} transform transition-all animate-in fade-in zoom-in-95 duration-200`}
       >
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b">
-            <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#2a2a3a]">
+            <h2 className="text-xl font-semibold text-slate-100">{title}</h2>
             <Button
               variant="ghost"
               size="sm"
