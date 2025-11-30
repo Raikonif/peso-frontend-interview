@@ -13,7 +13,7 @@ export function Skeleton({
   height,
   count = 1,
 }: SkeletonProps) {
-  const baseStyles = "animate-pulse bg-gray-200";
+  const baseStyles = "animate-pulse bg-[#2a2a3a]";
 
   const variants = {
     text: "rounded",
@@ -51,7 +51,7 @@ export function Skeleton({
 // Product Card Skeleton
 export function ProductCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+    <div className="bg-[#1a1a24] border border-[#2a2a3a] rounded-xl shadow-md overflow-hidden">
       <Skeleton className="w-full h-48" />
       <div className="p-4 space-y-3">
         <Skeleton height={20} width="60%" />

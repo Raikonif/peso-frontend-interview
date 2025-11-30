@@ -87,9 +87,9 @@ export function ProductDetail({
     <div className="max-w-6xl mx-auto">
       {/* Breadcrumb */}
       <nav className="mb-6">
-        <ol className="flex items-center gap-2 text-sm text-gray-600">
+        <ol className="flex items-center gap-2 text-sm text-slate-400">
           <li>
-            <Link href="/" className="hover:text-blue-600 transition-colors">
+            <Link href="/" className="hover:text-indigo-400 transition-colors">
               Inicio
             </Link>
           </li>
@@ -103,7 +103,7 @@ export function ProductDetail({
             </svg>
           </li>
           <li>
-            <span className="text-gray-900 font-medium line-clamp-1">
+            <span className="text-slate-100 font-medium line-clamp-1">
               {product.title}
             </span>
           </li>
@@ -112,7 +112,7 @@ export function ProductDetail({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         {/* Image section */}
-        <div className="bg-white rounded-xl shadow-md p-8">
+        <div className="bg-[#1a1a24] border border-[#2a2a3a] rounded-xl shadow-xl p-8">
           <div className="relative w-full h-96 md:h-[500px]">
             <Image
               src={product.image}
@@ -133,12 +133,12 @@ export function ProductDetail({
           </Badge>
 
           {/* Title */}
-          <h1 className="mt-4 text-3xl md:text-4xl font-bold text-gray-900">
+          <h1 className="mt-4 text-3xl md:text-4xl font-bold text-slate-100">
             {product.title}
           </h1>
 
           {/* Price */}
-          <p className="mt-4 text-4xl font-bold text-blue-600">
+          <p className="mt-4 text-4xl font-bold gradient-text">
             {formatPrice(product.price)}
           </p>
 
@@ -150,8 +150,8 @@ export function ProductDetail({
                   key={star}
                   className={`w-5 h-5 ${
                     star <= Math.round(product.rating.rate)
-                      ? "text-yellow-400"
-                      : "text-gray-300"
+                      ? "text-amber-400"
+                      : "text-slate-600"
                   } fill-current`}
                   viewBox="0 0 20 20"
                 >
@@ -159,44 +159,44 @@ export function ProductDetail({
                 </svg>
               ))}
             </div>
-            <span className="text-gray-600">
+            <span className="text-slate-400">
               {product.rating.rate.toFixed(1)} ({product.rating.count} reseñas)
             </span>
           </div>
 
           {/* Description */}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-900">Descripción</h2>
-            <p className="mt-2 text-gray-600 leading-relaxed">
+            <h2 className="text-lg font-semibold text-slate-100">Descripción</h2>
+            <p className="mt-2 text-slate-400 leading-relaxed">
               {product.description}
             </p>
           </div>
 
           {/* Product details */}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-slate-100">
               Detalles del producto
             </h2>
             <dl className="mt-2 grid grid-cols-2 gap-4 text-sm">
               <div>
-                <dt className="text-gray-500">ID del producto</dt>
-                <dd className="font-medium text-gray-900">#{product.id}</dd>
+                <dt className="text-slate-500">ID del producto</dt>
+                <dd className="font-medium text-slate-200">#{product.id}</dd>
               </div>
               <div>
-                <dt className="text-gray-500">Categoría</dt>
-                <dd className="font-medium text-gray-900">
+                <dt className="text-slate-500">Categoría</dt>
+                <dd className="font-medium text-slate-200">
                   {formatCategory(product.category)}
                 </dd>
               </div>
               <div>
-                <dt className="text-gray-500">Valoración promedio</dt>
-                <dd className="font-medium text-gray-900">
+                <dt className="text-slate-500">Valoración promedio</dt>
+                <dd className="font-medium text-slate-200">
                   {product.rating.rate}/5
                 </dd>
               </div>
               <div>
-                <dt className="text-gray-500">Total de reseñas</dt>
-                <dd className="font-medium text-gray-900">
+                <dt className="text-slate-500">Total de reseñas</dt>
+                <dd className="font-medium text-slate-200">
                   {product.rating.count}
                 </dd>
               </div>

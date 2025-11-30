@@ -14,13 +14,13 @@ export function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       {icon && (
-        <div className="mb-4 text-gray-400" aria-hidden="true">
+        <div className="mb-4 text-slate-500" aria-hidden="true">
           {icon}
         </div>
       )}
-      <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
+      <h3 className="text-xl font-semibold text-slate-100">{title}</h3>
       {description && (
-        <p className="mt-2 text-gray-600 max-w-md">{description}</p>
+        <p className="mt-2 text-slate-400 max-w-md">{description}</p>
       )}
       {action && <div className="mt-6">{action}</div>}
     </div>
@@ -56,7 +56,7 @@ export function ProductsEmptyState({
         onCreateClick ? (
           <button
             onClick={onCreateClick}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-lg shadow-indigo-500/25"
           >
             <svg
               className="w-5 h-5 mr-2"

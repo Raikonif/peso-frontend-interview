@@ -59,7 +59,7 @@ export function ErrorMessage({
 
   return (
     <div
-      className={`bg-red-50 border border-red-200 rounded-xl p-6 ${className}`}
+      className={`bg-red-900/20 border border-red-700/50 rounded-xl p-6 ${className}`}
       role="alert"
     >
       <div className="flex items-start gap-4">
@@ -67,15 +67,15 @@ export function ErrorMessage({
           {getErrorIcon()}
         </span>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-red-800">
+          <h3 className="text-lg font-semibold text-red-400">
             {getErrorTitle()}
           </h3>
-          <p className="mt-1 text-red-700">
+          <p className="mt-1 text-red-300">
             {isApiError ? apiError.message : error.message}
           </p>
 
           {isApiError && apiError.statusCode && (
-            <p className="mt-2 text-sm text-red-600">
+            <p className="mt-2 text-sm text-red-400/80">
               Código de error: {apiError.statusCode}
             </p>
           )}
