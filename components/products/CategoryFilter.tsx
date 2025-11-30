@@ -3,6 +3,7 @@
 import { useCategories } from "@/lib/hooks/useProducts";
 import { Button } from "../ui/Button";
 import { Skeleton } from "../ui/Skeleton";
+import { formatCategory } from "@/lib/helpers/formatCategory";
 
 interface CategoryFilterProps {
   selectedCategory: string | null;
@@ -28,10 +29,6 @@ export function CategoryFilter({
   if (error || !categories) {
     return null;
   }
-
-  const formatCategory = (category: string) => {
-    return category.charAt(0).toUpperCase() + category.slice(1);
-  };
 
   return (
     <div className="flex flex-wrap gap-2">

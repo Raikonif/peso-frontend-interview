@@ -63,7 +63,7 @@ export function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-3 overflow-hidden max-h-10/12"
+      className="space-y-3 overflow-hidden px-2 max-h-10/12"
     >
       <Input
         label="Título del producto"

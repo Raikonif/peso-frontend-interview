@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import { ApiError } from "../types/product";
 
 // Base API configuration
-const BASE_URL = "https://fakestoreapi.com";
+const BASE_URL = process.env.DATABASE_URL || "https://fakestoreapi.com";
 const TIMEOUT = 10000; // 10 seconds
 
 // Create axios instance with default config
