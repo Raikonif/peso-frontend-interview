@@ -8,11 +8,13 @@ import { formatCategory } from "@/lib/helpers/formatCategory";
 interface CategoryFilterProps {
   selectedCategory: string | null;
   onSelectCategory: (category: string | null) => void;
+  disabled?: boolean;
 }
 
 export function CategoryFilter({
   selectedCategory,
   onSelectCategory,
+  disabled = false,
 }: CategoryFilterProps) {
   const { data: categories, isLoading, error } = useCategories();
 
@@ -27,15 +29,40 @@ export function CategoryFilter({
   }
 
   if (error || !categories) {
-    return null;
+    // Show placeholder buttons when categories unavailable
+    const placeholderCategories = ["electronics", "clothing", "jewelery"];
+    return (
+      <div className={`flex flex-wrap gap-2 ${disabled ? "opacity-50" : ""}`}>
+        <Button
+          variant={selectedCategory === null ? "primary" : "secondary"}
+          size="sm"
+          onClick={() => onSelectCategory(null)}
+          disabled={disabled}
+        >
+          Todos
+        </Button>
+        {placeholderCategories.map((category) => (
+          <Button
+            key={category}
+            variant={selectedCategory === category ? "primary" : "secondary"}
+            size="sm"
+            onClick={() => onSelectCategory(category)}
+            disabled={disabled}
+          >
+            {formatCategory(category)}
+          </Button>
+        ))}
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className={`flex flex-wrap gap-2 ${disabled ? "opacity-50" : ""}`}>
       <Button
         variant={selectedCategory === null ? "primary" : "secondary"}
         size="sm"
         onClick={() => onSelectCategory(null)}
+        disabled={disabled}
       >
         Todos
       </Button>
@@ -45,6 +72,7 @@ export function CategoryFilter({
           variant={selectedCategory === category ? "primary" : "secondary"}
           size="sm"
           onClick={() => onSelectCategory(category)}
+          disabled={disabled}
         >
           {formatCategory(category)}
         </Button>

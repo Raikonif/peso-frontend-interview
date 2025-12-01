@@ -4,6 +4,8 @@ import "./globals.css";
 import { StoreProvider } from "@/lib/providers/StoreProvider";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { NotificationContainer } from "@/components/common/Notification";
+import { RetryIndicator } from "@/components/common/RetryIndicator";
+import { ErrorSimulatorToolbar } from "@/components/common/ErrorSimulatorToolbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +35,10 @@ export default function RootLayout({
       >
         <StoreProvider>
           <QueryProvider>
+            <ErrorSimulatorToolbar />
             {children}
             <NotificationContainer />
+            <RetryIndicator />
           </QueryProvider>
         </StoreProvider>
       </body>

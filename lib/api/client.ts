@@ -1,9 +1,11 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import axiosRetry, { isNetworkOrIdempotentRequestError } from "axios-retry";
 import { ApiError } from "../types/product";
+import { errorSimulation, SimulatedErrorType } from "../errorSimulation";
 
 // Base API configuration
 const BASE_URL = process.env.DATABASE_URL || "https://fakestoreapi.com";
+// const BASE_URL = "";
 const TIMEOUT = 10000; // 10 seconds
 const MAX_RETRIES = 3;
 
@@ -15,6 +17,105 @@ export const apiClient: AxiosInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// Error simulation interceptor (runs before request)
+apiClient.interceptors.request.use(
+  async (config) => {
+    const errorType = errorSimulation.shouldSimulateError();
+
+    if (errorType !== "none") {
+      console.log(`[Error Simulation] Simulating ${errorType} error`);
+
+      // Create simulated errors
+      const simulatedErrors: Record<SimulatedErrorType, () => never> = {
+        none: () => {
+          throw new Error("Should not reach here");
+        },
+        "500": () => {
+          const error = new AxiosError(
+            "Internal Server Error",
+            "ERR_BAD_RESPONSE",
+            config,
+            null,
+            {
+              status: 500,
+              statusText: "Internal Server Error",
+              headers: {},
+              config,
+              data: { error: "Simulated server error" },
+            } as AxiosResponse
+          );
+          throw error;
+        },
+        "404": () => {
+          const error = new AxiosError(
+            "Not Found",
+            "ERR_BAD_REQUEST",
+            config,
+            null,
+            {
+              status: 404,
+              statusText: "Not Found",
+              headers: {},
+              config,
+              data: { error: "Resource not found" },
+            } as AxiosResponse
+          );
+          throw error;
+        },
+        timeout: () => {
+          const error = new AxiosError(
+            "timeout of 10000ms exceeded",
+            "ECONNABORTED",
+            config
+          );
+          throw error;
+        },
+        network: () => {
+          const error = new AxiosError("Network Error", "ERR_NETWORK", config);
+          throw error;
+        },
+        empty: () => {
+          const error = new AxiosError(
+            "Empty Response",
+            "ERR_BAD_RESPONSE",
+            config,
+            null,
+            {
+              status: 200,
+              statusText: "OK",
+              headers: {},
+              config,
+              data: null, // Empty response
+            } as AxiosResponse
+          );
+          throw error;
+        },
+        invalid: () => {
+          const error = new AxiosError(
+            "Invalid JSON",
+            "ERR_BAD_RESPONSE",
+            config,
+            null,
+            {
+              status: 200,
+              statusText: "OK",
+              headers: {},
+              config,
+              data: "<<<invalid json data>>>", // Malformed data
+            } as AxiosResponse
+          );
+          throw error;
+        },
+      };
+
+      simulatedErrors[errorType]();
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Configure axios-retry for automatic retries
 axiosRetry(apiClient, {
