@@ -14,11 +14,12 @@ interface ProductPageProps {
   }>;
 }
 
-// Generate static pages for all products at build time
-export async function generateStaticParams() {
-  const products = await serverApi.getProducts();
-  return products.map((product) => ({
-    id: String(product.id),
+// Generate static pages for products 1-20 at build time
+// We use hardcoded IDs to avoid API calls during build (FakeStoreAPI blocks Vercel builds)
+export function generateStaticParams() {
+  // FakeStoreAPI has products with IDs 1-20
+  return Array.from({ length: 20 }, (_, i) => ({
+    id: String(i + 1),
   }));
 }
 
@@ -32,11 +33,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
   // Create a new QueryClient for each request
   const queryClient = new QueryClient();
 
-  // Prefetch the product on the server
-  await queryClient.prefetchQuery({
-    queryKey: productKeys.detail(productId),
-    queryFn: () => serverApi.getProduct(productId),
-  });
+  // Prefetch the product on the server (with error handling for build resilience)
+  try {
+    await queryClient.prefetchQuery({
+      queryKey: productKeys.detail(productId),
+      queryFn: () => serverApi.getProduct(productId),
+    });
+  } catch {
+    // If prefetch fails, the client will fetch on hydration
+    console.warn(
+      `Failed to prefetch product ${productId}, will fetch on client`
+    );
+  }
 
   return (
     <div className="min-h-screen">

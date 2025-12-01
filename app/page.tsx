@@ -13,17 +13,26 @@ export default async function HomePage() {
   // Create a new QueryClient for each request (SSR best practice)
   const queryClient = new QueryClient();
 
-  // Prefetch products on the server
-  await queryClient.prefetchQuery({
-    queryKey: productKeys.list(20),
-    queryFn: () => serverApi.getProducts(20),
-  });
+  // Prefetch products on the server (with error handling for build resilience)
+  try {
+    await queryClient.prefetchQuery({
+      queryKey: productKeys.list(20),
+      queryFn: () => serverApi.getProducts(20),
+    });
+  } catch {
+    // If prefetch fails, the client will fetch on hydration
+    console.warn("Failed to prefetch products, will fetch on client");
+  }
 
   // Prefetch categories for the filter
-  await queryClient.prefetchQuery({
-    queryKey: productKeys.categories(),
-    queryFn: () => serverApi.getCategories(),
-  });
+  try {
+    await queryClient.prefetchQuery({
+      queryKey: productKeys.categories(),
+      queryFn: () => serverApi.getCategories(),
+    });
+  } catch {
+    console.warn("Failed to prefetch categories, will fetch on client");
+  }
 
   return (
     <div className="min-h-screen">
